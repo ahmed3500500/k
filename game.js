@@ -103,8 +103,8 @@ function create() {
     // UI
     scoreText = this.add.text(25, 25, 'النقاط: 0', { 
         fontSize: '40px', 
-        fill: '#ffd700', 
-        fontFamily: 'Outfit',
+        fill: '#ff69b4', 
+        fontFamily: 'Segoe UI',
         stroke: '#000', 
         strokeThickness: 6 
     }).setScrollFactor(0).setVisible(false);

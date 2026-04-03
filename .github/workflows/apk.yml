@@ -48,6 +48,47 @@ jobs:
           npx cap add android
           npx cap copy android
           chmod +x android/gradlew
+          python3 - <<'PY'
+          from pathlib import Path
+          
+          kotlin_version = "1.8.22"
+          
+          groovy = Path("android/build.gradle")
+          kts = Path("android/build.gradle.kts")
+          
+          if groovy.exists():
+              content = groovy.read_text(encoding="utf-8")
+              patch = (
+                  "\n\nallprojects {\n"
+                  "  configurations.all {\n"
+                  "    resolutionStrategy {\n"
+                  f"      force \"org.jetbrains.kotlin:kotlin-stdlib:{kotlin_version}\"\n"
+                  f"      force \"org.jetbrains.kotlin:kotlin-stdlib-jdk7:{kotlin_version}\"\n"
+                  f"      force \"org.jetbrains.kotlin:kotlin-stdlib-jdk8:{kotlin_version}\"\n"
+                  "    }\n"
+                  "  }\n"
+                  "}\n"
+              )
+              if "resolutionStrategy" not in content or "kotlin-stdlib-jdk8" not in content:
+                  groovy.write_text(content + patch, encoding="utf-8")
+          elif kts.exists():
+              content = kts.read_text(encoding="utf-8")
+              patch = (
+                  "\n\nallprojects {\n"
+                  "  configurations.all {\n"
+                  "    resolutionStrategy {\n"
+                  f"      force(\"org.jetbrains.kotlin:kotlin-stdlib:{kotlin_version}\")\n"
+                  f"      force(\"org.jetbrains.kotlin:kotlin-stdlib-jdk7:{kotlin_version}\")\n"
+                  f"      force(\"org.jetbrains.kotlin:kotlin-stdlib-jdk8:{kotlin_version}\")\n"
+                  "    }\n"
+                  "  }\n"
+                  "}\n"
+              )
+              if "resolutionStrategy" not in content or "kotlin-stdlib-jdk8" not in content:
+                  kts.write_text(content + patch, encoding="utf-8")
+          else:
+              raise SystemExit("Could not find android/build.gradle or android/build.gradle.kts")
+          PY
 
       - name: Build debug APK
         run: |
